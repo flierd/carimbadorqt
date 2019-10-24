@@ -15,6 +15,7 @@ class CarimbadorQt(QWidget):
         self.initui()
 
     def initui(self):
+        self.img = Image.open('./res/vazio.png')
 
         btnAbrir = QPushButton('Abrir')
         btnAbrir.clicked.connect(self.eventoOpen)
@@ -22,18 +23,31 @@ class CarimbadorQt(QWidget):
         btnCapturar = QPushButton('Capturar')
         btnCapturar.clicked.connect(self.eventoCaptura)
 
-        layout = QGridLayout()
-        layout.addWidget(btnAbrir, 0, 0, 5, 10)
-        layout.addWidget(btnCapturar, 0, 0, 10, 10)
+        self.labelImagem = QLabel()
+        self.imagemqt = ImageQt.ImageQt(self.img)
+        self.labelImagem.setPixmap(QPixmap.fromImage(self.imagemqt))
+        self.labelImagem.setObjectName("image")
 
-        self.setGeometry(100, 30, 200, 200)
+        self.setGeometry(100, 30, 500, 500)
+        self.setWindowTitle("Carimbador Qt")
+        self.setWindowIcon(QIcon('./res/nova200.png'))
+
+        layout = QGridLayout()
+        layout.addWidget(btnAbrir, 0, 0,Qt.AlignTop)
+        layout.addWidget(btnCapturar, 0, 0,Qt.AlignTrailing)
+        layout.addWidget(self.labelImagem,0,1,1,1)
+
 
         self.setLayout(layout)
         self.show()
 
     def eventoOpen(self):
         f = QFileDialog.getOpenFileName(None,'Abrir',str(Path.home())+'/Pictures','PNG (*.png);;JPEG (*.jpg)')
-        print (f)
+        self.img = Image.open(f[0],'r')
+        im = self.img.copy()
+        im.thumbnail([600,600],Image.ANTIALIAS)
+        self.imagemqt = ImageQt.ImageQt(im)
+        self.labelImagem.setPixmap(QPixmap.fromImage(self.imagemqt))
     
     def eventoCaptura(self):
         a = 0
@@ -45,10 +59,11 @@ class CarimbadorQt(QWidget):
             if is_pressed('ctrl+shift+a'):
                 x1, y1 = position()
                 print (str(x1)+':'+str(y1))
+                QMessageBox.question(self, 'Aviso', "Primeiro ponto definido,pressione OK e escolha o segundo", QMessageBox.Ok)
                 a = 1
         
         while (a==1):
-            if is_pressed('ctrl+shift+s'):
+            if is_pressed('ctrl+shift+a'):
                 x2, y2 = position()
                 print (str(x2)+':'+str(y2))
                 a = 0
