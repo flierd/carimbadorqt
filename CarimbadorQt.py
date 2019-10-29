@@ -39,6 +39,7 @@ class CarimbadorQt(QWidget):
         self.imagemqt = ImageQt.ImageQt(self.img)
         self.labelImagem.setPixmap(QPixmap.fromImage(self.imagemqt))
         self.labelImagem.setObjectName("image")
+        self.labelImagem.mousePressEvent = self.getPos
 
         self.listaLogo = QListWidget()
         self.listaLogo.addItems(self.getLogoList())
@@ -65,6 +66,11 @@ class CarimbadorQt(QWidget):
 
         self.setLayout(layout)
         self.show()
+
+    def getPos(self,event):
+        x = event.pos().x()
+        y = event.pos().y()
+        print (" x :"+str(x)+" | y: "+str(y))
 
     def eventoOpen(self):
         f = QFileDialog.getOpenFileName(None,'Abrir',str(Path.home())+'/Pictures','PNG (*.png);;JPEG (*.jpg)')
