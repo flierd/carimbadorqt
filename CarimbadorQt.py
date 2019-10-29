@@ -19,6 +19,8 @@ class CarimbadorQt(QWidget):
         self.img = Image.open('./res/vazio.png')
         self.im = self.img.copy()
         self.im.thumbnail([500,500],Image.ANTIALIAS)
+        
+        self.imagemResultado = Image.open('./res/vazio.png')
 
         self.logo = Image.open('./res/vazio.png')
         self.imlogo = self.logo.copy()
@@ -29,6 +31,9 @@ class CarimbadorQt(QWidget):
 
         btnCapturar = QPushButton('Capturar')
         btnCapturar.clicked.connect(self.eventoCaptura)
+
+        btnSalvar = QPushButton('Salvar')
+        btnSalvar.clicked.connect(self.eventoSave)
 
         self.spinEscala = QDial()
         self.spinEscala.setValue(30)
@@ -60,17 +65,25 @@ class CarimbadorQt(QWidget):
         layout.addWidget(self.spinEscala,0,0,Qt.AlignBottom)
 
 
-        layout.addWidget(self.listaLogo,1,0,Qt.AlignVCenter)
-        layout.addWidget(self.labelLogo,1,1,1,1)
+        layout.addWidget(btnSalvar, 1, 0,Qt.AlignTop)
+        layout.addWidget(self.listaLogo,2,0,Qt.AlignBottom)
+        layout.addWidget(self.labelLogo,2,1,1,1)
 
 
         self.setLayout(layout)
         self.show()
 
     def getPos(self,event):
-        x = event.pos().x()
-        y = event.pos().y()
-        print (" x :"+str(x)+" | y: "+str(y))
+        a = event.pos().x()
+        b = event.pos().y()
+        self.wajustado = a/self.im.width
+        self.hajustado = b/self.im.height
+        self.imagemResultado = self.inseremarca(self.img,self.logo,[a,b])
+        self.thumbResultado = self.imagemResultado.copy()
+        self.thumbResultado.thumbnail([500,500],Image.ANTIALIAS)
+        self.imagemResqt = ImageQt.ImageQt(self.thumbResultado)
+        self.labelImagem.setPixmap(QPixmap.fromImage(self.imagemResqt))
+
 
     def eventoOpen(self):
         f = QFileDialog.getOpenFileName(None,'Abrir',str(Path.home())+'/Pictures','PNG (*.png);;JPEG (*.jpg)')
@@ -80,12 +93,17 @@ class CarimbadorQt(QWidget):
         self.imagemqt = ImageQt.ImageQt(im)
         self.labelImagem.setPixmap(QPixmap.fromImage(self.imagemqt))
     
+    def eventoSave(self):
+        localsalvar = QFileDialog.getSaveFileName(None,'Salvar',str(Path.home())+'/Pictures','PNG (*.png);;JPEG (*.jpg)')
+        self.imagemResultado.save(localsalvar[0])
+    
     def eventoCaptura(self):
         a = 0
         x1 = 0
         y1 = 0
         x2 = 0
         y2 = 0
+        QMessageBox.question(self, 'Aviso', "Posicione o mouse no primeiro ponto e pressione ctrl+shift+a", QMessageBox.Ok)
         while (a==0):
             if is_pressed('ctrl+shift+a'):
                 x1, y1 = position()
@@ -119,6 +137,30 @@ class CarimbadorQt(QWidget):
         self.imlogo.thumbnail([100,100],Image.ANTIALIAS)
         self.logoqt = ImageQt.ImageQt(self.imlogo)
         self.labelLogo.setPixmap(QPixmap.fromImage(self.logoqt))
+
+    def inseremarca(self,imagem,watermark,posicao=[0,0]):
+        base_image = imagem
+        width, height = base_image.size
+        marca = watermark.copy()
+        escalaLogo = int(self.spinEscala.value())
+        marca.thumbnail([int(width*(escalaLogo/100)),int(width*(escalaLogo/100))],Image.ANTIALIAS)
+        cx=posicao
+        cx[0]=int(width*self.wajustado)
+        cx[1]=int(height*self.hajustado)
+        cx[0]=cx[0]-int(marca.size[0]/2)
+        cx[1]=cx[1]-int(marca.size[1]/2)
+        transparent = Image.new('RGBA', (width, height), (0,0,0,0))    
+        transparent.paste(base_image,[0,0])
+        if (cx[0]>width-marca.size[0]):
+                cx[0] = width-marca.size[0]
+        if (cx[1]>height-marca.size[1]):
+                cx[1] = height-marca.size[1]
+        if (cx[0]<0):
+                cx[0] = 0
+        if (cx[1]<0):
+                cx[1] = 0
+        transparent.paste(marca, cx, mask=marca)
+        return transparent
 
 
 if __name__ == '__main__':
