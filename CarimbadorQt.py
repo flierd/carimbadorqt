@@ -86,16 +86,24 @@ class CarimbadorQt(QWidget):
 
 
     def eventoOpen(self):
-        f = QFileDialog.getOpenFileName(None,'Abrir',str(Path.home())+'/Pictures','PNG (*.png);;JPEG (*.jpg)')
-        self.img = Image.open(f[0],'r')
-        im = self.img.copy()
-        im.thumbnail([500,500],Image.ANTIALIAS)
-        self.imagemqt = ImageQt.ImageQt(im)
-        self.labelImagem.setPixmap(QPixmap.fromImage(self.imagemqt))
+        f,_ = QFileDialog.getOpenFileName(None,'Abrir',str(Path.home())+'/Pictures','PNG (*.png);;JPEG (*.jpg)')
+        print(f+" - "+_)
+        if (f):
+            self.img = Image.open(f,'r')
+            self.im = self.img.copy()
+            self.im.thumbnail([500,500],Image.ANTIALIAS)
+            self.imagemqt = ImageQt.ImageQt(self.im)
+            self.labelImagem.setPixmap(QPixmap.fromImage(self.imagemqt))
+        else:
+            print('erro de arquivo')
     
     def eventoSave(self):
-        localsalvar = QFileDialog.getSaveFileName(None,'Salvar',str(Path.home())+'/Pictures','PNG (*.png);;JPEG (*.jpg)')
-        self.imagemResultado.save(localsalvar[0])
+        localsalvar,_ = QFileDialog.getSaveFileName(None,'Salvar',str(Path.home())+'/Pictures','PNG (*.png);;JPEG (*.jpg)')
+        print (localsalvar+' - '+_)
+        if (localsalvar):
+            self.imagemResultado.save(localsalvar)
+        else:
+            print ('erro ao salvar')
     
     def eventoCaptura(self):
         a = 0
@@ -119,9 +127,9 @@ class CarimbadorQt(QWidget):
                 
         box = (x1,y1,x2,y2)
         self.img = ImageGrab.grab(box)
-        im = self.img.copy()
-        im.thumbnail([500,500],Image.ANTIALIAS)
-        self.imagemqt = ImageQt.ImageQt(im)
+        self.im = self.img.copy()
+        self.im.thumbnail([500,500],Image.ANTIALIAS)
+        self.imagemqt = ImageQt.ImageQt(self.im)
         self.labelImagem.setPixmap(QPixmap.fromImage(self.imagemqt))
     
     def getLogoList(self):
