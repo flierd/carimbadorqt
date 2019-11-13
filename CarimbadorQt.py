@@ -86,7 +86,7 @@ class CarimbadorQt(QWidget):
 
 
     def eventoOpen(self):
-        f,_ = QFileDialog.getOpenFileName(None,'Abrir',str(Path.home())+'/Pictures','PNG (*.png);;JPEG (*.jpg)')
+        f,_ = QFileDialog.getOpenFileName(None,'Abrir',str(Path.home())+'/Pictures','Todos (*.*);;PNG (*.png);;JPEG (*.jpg)')
         print(f+" - "+_)
         if (f):
             self.img = Image.open(f,'r')
