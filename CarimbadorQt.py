@@ -37,6 +37,7 @@ class CarimbadorQt(QWidget):
 
         self.spinEscala = QDial()
         self.spinEscala.setValue(30)
+        self.spinEscala.setMinimum(10)
         self.spinEscala.setNotchesVisible(True)
         self.spinEscala.setToolTip('Escala do Logo')
 
