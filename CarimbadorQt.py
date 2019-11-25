@@ -7,7 +7,7 @@ from PIL import Image, ImageQt, ImageGrab
 from pathlib import Path
 from keyboard import is_pressed
 from pyautogui import position
-
+import numpy as np
 
 class CarimbadorQt(QWidget):
 
@@ -51,6 +51,9 @@ class CarimbadorQt(QWidget):
         self.listaLogo.addItems(self.getLogoList())
         self.listaLogo.clicked.connect(self.eventoMudaLogo)
 
+        self.btnCor = QPushButton('Cor')
+        self.btnCor.clicked.connect(self.eventoCorLogo)
+
         self.labelLogo = QLabel()
         self.logoqt = ImageQt.ImageQt(self.imlogo)
         self.labelLogo.setPixmap(QPixmap.fromImage(self.logoqt))
@@ -69,6 +72,7 @@ class CarimbadorQt(QWidget):
         layout.addWidget(btnSalvar, 1, 0,Qt.AlignTop)
         layout.addWidget(self.listaLogo,2,0,Qt.AlignBottom)
         layout.addWidget(self.labelLogo,2,1,1,1)
+        layout.addWidget(self.btnCor,2,1,Qt.AlignRight)
 
 
         self.setLayout(layout)
@@ -85,6 +89,29 @@ class CarimbadorQt(QWidget):
         self.imagemResqt = ImageQt.ImageQt(self.thumbResultado)
         self.labelImagem.setPixmap(QPixmap.fromImage(self.imagemResqt))
 
+
+    def eventoCorLogo(self):
+        cor = QColorDialog.getColor()
+        a = (cor.red(),cor.green(),cor.blue())
+        print(a)
+        #Ver qual é a imagem do logo
+        im = Image.open('./res/'+self.listaLogo.currentItem().text())
+        im = im.convert('RGBA')
+
+        data = np.array(im)   # "data" is a height x width x 4 numpy array
+        red, green, blue, alpha = data.T # Temporarily unpack the bands for readability
+
+        # Replace white with red... (leaves alpha values alone...)
+        black_areas = (red == 0) & (blue == 0) & (green == 0)
+        data[..., :-1][black_areas.T] = a # Transpose back needed
+
+        im2 = Image.fromarray(data)
+        self.logo = im2
+        self.imlogo = self.logo.copy()
+        self.imlogo.thumbnail([100,100],Image.ANTIALIAS)
+        self.logoqt = ImageQt.ImageQt(self.imlogo)
+        self.labelLogo.setPixmap(QPixmap.fromImage(self.logoqt))
+        
 
     def eventoOpen(self):
         f,_ = QFileDialog.getOpenFileName(None,'Abrir',str(Path.home())+'/Pictures','Todos (*.*);;PNG (*.png);;JPEG (*.jpg)')
