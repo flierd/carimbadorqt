@@ -1,13 +1,13 @@
 import sys
 from os import listdir
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QWidget,QPushButton,QDial,QLabel,QListWidget,QGridLayout,QColorDialog,QFileDialog,QMessageBox,QApplication
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtCore import Qt
 from PIL import Image, ImageQt, ImageGrab
 from pathlib import Path
 from keyboard import is_pressed
 from pyautogui import position
-import numpy as np
+from numpy import array
 
 class CarimbadorQt(QWidget):
 
@@ -96,7 +96,7 @@ class CarimbadorQt(QWidget):
         im = Image.open('./res/'+self.listaLogo.currentItem().text())
         im = im.convert('RGBA')
 
-        data = np.array(im)
+        data = array(im)
         red, green, blue, alpha = data.T
 
         black_areas = (red == 0) & (blue == 0) & (green == 0)
