@@ -93,17 +93,14 @@ class CarimbadorQt(QWidget):
     def eventoCorLogo(self):
         cor = QColorDialog.getColor()
         a = (cor.red(),cor.green(),cor.blue())
-        print(a)
-        #Ver qual é a imagem do logo
         im = Image.open('./res/'+self.listaLogo.currentItem().text())
         im = im.convert('RGBA')
 
-        data = np.array(im)   # "data" is a height x width x 4 numpy array
-        red, green, blue, alpha = data.T # Temporarily unpack the bands for readability
+        data = np.array(im)
+        red, green, blue, alpha = data.T
 
-        # Replace white with red... (leaves alpha values alone...)
         black_areas = (red == 0) & (blue == 0) & (green == 0)
-        data[..., :-1][black_areas.T] = a # Transpose back needed
+        data[..., :-1][black_areas.T] = a
 
         im2 = Image.fromarray(data)
         self.logo = im2
@@ -115,7 +112,6 @@ class CarimbadorQt(QWidget):
 
     def eventoOpen(self):
         f,_ = QFileDialog.getOpenFileName(None,'Abrir',str(Path.home())+'/Pictures','Todos (*.*);;PNG (*.png);;JPEG (*.jpg)')
-        print(f+" - "+_)
         if (f):
             self.img = Image.open(f,'r')
             self.im = self.img.copy()
@@ -127,7 +123,6 @@ class CarimbadorQt(QWidget):
     
     def eventoSave(self):
         localsalvar,_ = QFileDialog.getSaveFileName(None,'Salvar',str(Path.home())+'/Pictures','PNG (*.png);;JPEG (*.jpg)')
-        print (localsalvar+' - '+_)
         if (localsalvar):
             self.imagemResultado.save(localsalvar)
         else:
