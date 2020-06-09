@@ -32,6 +32,9 @@ class CarimbadorQt(QWidget):
         btnCapturar = QPushButton('Capturar')
         btnCapturar.clicked.connect(self.eventoCaptura)
 
+        btnAplicar = QPushButton('Aplicar carimbo')
+        btnAplicar.clicked.connect(self.eventoAplica)
+
         btnSalvar = QPushButton('Salvar')
         btnSalvar.clicked.connect(self.eventoSave)
 
@@ -72,6 +75,7 @@ class CarimbadorQt(QWidget):
         layout.addWidget(btnSalvar, 1, 0,Qt.AlignTop)
         layout.addWidget(self.listaLogo,2,0,Qt.AlignBottom)
         layout.addWidget(self.labelLogo,2,1,1,1)
+        layout.addWidget(btnAplicar,2,1,Qt.AlignHCenter)
         layout.addWidget(self.btnCor,2,1,Qt.AlignRight)
 
 
@@ -150,6 +154,13 @@ class CarimbadorQt(QWidget):
                 
         box = (x1,y1,x2,y2)
         self.img = ImageGrab.grab(box)
+        self.im = self.img.copy()
+        self.im.thumbnail([500,500],Image.ANTIALIAS)
+        self.imagemqt = ImageQt.ImageQt(self.im)
+        self.labelImagem.setPixmap(QPixmap.fromImage(self.imagemqt))
+    
+    def eventoAplica(self):
+        self.img = self.imagemResultado
         self.im = self.img.copy()
         self.im.thumbnail([500,500],Image.ANTIALIAS)
         self.imagemqt = ImageQt.ImageQt(self.im)
